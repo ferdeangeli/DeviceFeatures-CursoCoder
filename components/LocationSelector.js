@@ -1,74 +1,104 @@
-import { StyleSheet, Text, View, Button, Alert } from 'react-native'
-import React from 'react'
-import * as Location from 'expo-location'
-import Colors from '../constants/Colors'
-import { useState } from 'react'
+import React, { useState, useEffect } from "react"
+import { StyleSheet, Text, View, Button, Alert } from "react-native"
+import * as Location from "expo-location"
+import { useNavigation, useRoute } from "@react-navigation/native"
 
-const LocationSelector = ({onLocation}) => {
+import { COLORS } from "../constants"
+import MapPreview from "./MapPreview"
 
-    const [pickedLocation, setPickedLocation] = useState()
+const LocationSelector = ({ onLocation, mapLocation }) => {
+  const navigation = useNavigation();
+  const route = useRoute();
+  const [pickedLocation, setPickedLocation] = useState();
 
-    const verifyPermissions = async () => {
-        const { status } = await Location.requestForegroundPermissionsAsync()
+  useEffect(() => {
+    if (mapLocation) {
+      setPickedLocation(mapLocation);
+      onLocation(mapLocation);
+    } 
+  }, [mapLocation]);
 
-        if(status != 'granted'){
-            Alert.alert(
-                'Permisos insuficientes',
-                'Necesita dar permisos de localizacion para utilizar la aplicacion',
-                [{text: 'OK'}]
-            )
-            return false
-        }
-        return true
+  const verifyPermissons = async () => {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+
+    if (status !== "granted") {
+      Alert.alert(
+        "Permisos insuficientes",
+        "Necesita dar permisos de la localizacion para usar la aplicacion",
+        [{ text: "OK" }]
+      );
+      return false;
     }
+    return true;
+  };
 
-    const handleGetLocation = async () => {
-        const isLocationOk = await verifyPermissions()
+  const handleGetLocation = async () => {
+    const isLocationOk = await verifyPermissons();
+    if (!isLocationOk) return;
 
-        if(!isLocationOk) return
+    const location = await Location.getCurrentPositionAsync({
+      timeout: 5000,
+    });
 
-        const location = await Location.getCurrentPositionAsync({
-            timeout: 5000
-        })
+    setPickedLocation({
+      lat: location.coords.latitude,
+      lng: location.coords.longitude,
+    });
+    onLocation({
+      lat: location.coords.latitude,
+      lng: location.coords.longitude,
+    });
+  };
 
-        setPickedLocation({
-            lat: location.coords.latitude,
-            long: location.coords.longitude
-        })
+  const handlePickOnMap = async () => {
+    const isLocationOk = await verifyPermissons();
+    if (!isLocationOk) return;
 
-        onLocation({
-            lat: location.coords.latitude,
-            long: location.coords.longitude
-        })
-    }
+    navigation.navigate("Map");
+  };
 
   return (
     <View style={styles.container}>
-        <View style={styles.preview}>
-            {pickedLocation ? <Text>{pickedLocation.lat}, {pickedLocation.long}</Text> : <Text>Esperando ubicacion</Text>}
-        </View>
-        <Button title='Obtain Location' color={Colors.PEACH_PUFF} onPress={handleGetLocation}/>
+      <MapPreview location={pickedLocation} style={styles.preview}>
+        <Text> Location en proceso...</Text>
+      </MapPreview>
+      <View style={styles.actions}>
+        <Button
+          title="Obtain Location"
+          color={COLORS.PEACH_PUFF}
+          onPress={handleGetLocation}
+        />
+        <Button
+          title="Elegir del Mapa"
+          color={COLORS.LIGTH_PINK}
+          onPress={handlePickOnMap}
+        />
+      </View>
     </View>
-  )
-}
+  );
+};
 
-export default LocationSelector
+export default LocationSelector;
 
 const styles = StyleSheet.create({
-    container:{
-        marginBottom:10,
-    },
-    preview:{
-        width: '100%',
-        height: 200,
-        marginBottom: 10,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderColor: Colors.BLUSH,
-        borderWidth:1
-    },
-    image:{
-        width: '100%',
-        height: '100%'
-    }
-})
+  container: {
+    marginBottom: 10,
+  },
+  preview: {
+    width: "100%",
+    height: 200,
+    marginBottom: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    borderColor: COLORS.BLUSH,
+    borderWidth: 1,
+  },
+  image: {
+    width: "100%",
+    height: "100%",
+  },
+  actions: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+  },
+});
