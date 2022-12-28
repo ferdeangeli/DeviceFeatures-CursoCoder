@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react"
 import { StyleSheet, Text, View, Button, Alert } from "react-native"
 import * as Location from "expo-location"
 import { useNavigation, useRoute } from "@react-navigation/native"
-
-import { COLORS } from "../constants"
+import Colors from "../constants/Colors"
 import MapPreview from "./MapPreview"
 
 const LocationSelector = ({ onLocation, mapLocation }) => {
@@ -65,12 +64,12 @@ const LocationSelector = ({ onLocation, mapLocation }) => {
       <View style={styles.actions}>
         <Button
           title="Obtain Location"
-          color={COLORS.PEACH_PUFF}
+          color={Colors.PEACH_PUFF}
           onPress={handleGetLocation}
         />
         <Button
           title="Elegir del Mapa"
-          color={COLORS.LIGTH_PINK}
+          color={Colors.LIGTH_PINK}
           onPress={handlePickOnMap}
         />
       </View>
@@ -90,7 +89,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     justifyContent: "center",
     alignItems: "center",
-    borderColor: COLORS.BLUSH,
+    borderColor: Colors.BLUSH,
     borderWidth: 1,
   },
   image: {
