@@ -14,13 +14,19 @@ const MapScreen = ({ navigation }) => {
   const [selectedLocation, setSelectedLocation] = useState();
 
   const handleSelectedLocation = (event) => {
-    setSelectedLocation({
-      lat: event.nativeEvent.coordinate.latitude,
-      lng: event.nativeEvent.coordinate.longitude,
+
+    const lat = event.nativeEvent.coordinate.latitude
+    const lng = event.nativeEvent.coordinate.longitude
+
+    setSelectedLocation(prevState => {
+      return {
+        lat: lat,
+        lng: lng
+      }
     });
   };
 
-  const handleSaveLocation = () => {
+  const handleSaveLocation = (event) => {
     navigation.navigate("Nuevo", {
       mapLocation: {
         lat: 0.06587304174900055,
